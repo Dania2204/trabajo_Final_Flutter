@@ -432,6 +432,13 @@ abstract class S {
   static String get profilePrivacy => _t('Privacidad', 'Privacy');
   static String get profileNotifications =>
       _t('Notificaciones', 'Notifications');
+  static String get profilePhone => _t('Teléfono', 'Phone');
+  static String get profileIdNumber => _t('Número de ID', 'ID Number');
+  static String get profileInstitution => _t('Institución', 'Institution');
+  static String get profileSyncStatus => _t('Estado sync', 'Sync status');
+  static String get profileSynced => _t('Sincronizado', 'Synced');
+  static String get profilePendingSync => _t('Sync pendiente', 'Pending sync');
+  static String get profileVersion => _t('PAEGo v2.0.0', 'PAEGo v2.0.0');
   static String get settingsTheme => _t('Modo oscuro', 'Dark mode');
   static String get settingsLanguage => _t('Idioma', 'Language');
   static String get settingsSync => _t('Sincronizar datos', 'Sync data now');

@@ -174,7 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     _InfoRow(
                       icon: Icons.phone_outlined,
-                      label: isES ? 'Teléfono' : 'Phone',
+                      label: S.profilePhone,
                       value: widget.user.phone.isNotEmpty
                           ? widget.user.phone
                           : '—',
@@ -185,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Divider(height: 20, color: dividerColor),
                     _InfoRow(
                       icon: Icons.badge_outlined,
-                      label: isES ? 'Número de ID' : 'ID Number',
+                      label: S.profileIdNumber,
                       value: widget.user.idNumber.isNotEmpty
                           ? widget.user.idNumber
                           : '—',
@@ -198,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Divider(height: 20, color: dividerColor),
                       _InfoRow(
                         icon: Icons.school_outlined,
-                        label: isES ? 'Institución' : 'Institution',
+                        label: S.profileInstitution,
                         value: widget.user.institution!,
                         textPrimary: textPrimary,
                         textSecondary: textSecondary,
@@ -208,10 +208,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Divider(height: 20, color: dividerColor),
                     _InfoRow(
                       icon: Icons.cloud_outlined,
-                      label: isES ? 'Estado sync' : 'Sync status',
+                      label: S.profileSyncStatus,
                       value: widget.user.isSynced
-                          ? (isES ? 'Sincronizado' : 'Synced')
-                          : (isES ? 'Sync pendiente' : 'Pending sync'),
+                          ? S.profileSynced
+                          : S.profilePendingSync,
                       valueColor: widget.user.isSynced
                           ? PaeColors.success
                           : PaeColors.warning,
@@ -389,7 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 32),
 
                   Text(
-                    'PAEGo v2.0.0',
+                    S.profileVersion,
                     style: TextStyle(color: textSecondary, fontSize: 12),
                   ),
                   const SizedBox(height: 16),
