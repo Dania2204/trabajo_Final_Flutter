@@ -46,11 +46,16 @@ class _ReportsScreenState extends State<ReportsScreen>
     final orders = await DatabaseHelper.instance.getOrders();
     setState(() {
       _reports = reports;
-      _myOrders = orders
-          .where((o) =>
-              o.assignedDriverId == widget.user.id ||
-              widget.user.role.canViewAllReports)
-          .toList();
+      // FIX: El conductor ve los pedidos asignados a él Y los pedidos sin
+      // conductor asignado (isOpen). Así siempre hay opciones en el dropdown.
+      if (widget.user.role.canViewAllReports) {
+        _myOrders = orders;
+      } else {
+        _myOrders = orders
+            .where((o) =>
+                o.assignedDriverId == widget.user.id || o.isOpen)
+            .toList();
+      }
       _loading = false;
     });
   }
@@ -65,12 +70,17 @@ class _ReportsScreenState extends State<ReportsScreen>
         children: [
           GradientHeader(
             title: S.reportTitle,
-            subtitle: '${_reports.length} reports total',
+            subtitle: S.text(
+              'report.total_count',
+              '${_reports.length} informes en total',
+              '${_reports.length} reports total',
+            ),
             height: 110,
             actions: [
               if (canSubmit)
                 IconButton(
-                  icon: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+                  icon: const Icon(Icons.add_rounded,
+                      color: Colors.white, size: 28),
                   onPressed: () => _showNewReportSheet(),
                 ),
             ],
@@ -90,9 +100,15 @@ class _ReportsScreenState extends State<ReportsScreen>
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
                 ),
-                tabs: const [
-                  Tab(text: 'All Reports'),
-                  Tab(text: 'My Submissions'),
+                tabs: [
+                  Tab(
+                    text: S.text(
+                        'report.tab_all', 'Todos los informes', 'All Reports'),
+                  ),
+                  Tab(
+                    text: S.text(
+                        'report.tab_mine', 'Mis envíos', 'My Submissions'),
+                  ),
                 ],
               ),
             ),
@@ -100,15 +116,20 @@ class _ReportsScreenState extends State<ReportsScreen>
 
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator(color: PaeColors.primary))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                        color: PaeColors.primary))
                 : canView
                     ? TabBarView(
                         controller: _tabCtrl,
                         children: [
-                          _ReportsList(reports: _reports, currentUserId: widget.user.id!),
+                          _ReportsList(
+                              reports: _reports,
+                              currentUserId: widget.user.id!),
                           _ReportsList(
                             reports: _reports
-                                .where((r) => r.submittedByUserId == widget.user.id)
+                                .where((r) =>
+                                    r.submittedByUserId == widget.user.id)
                                 .toList(),
                             currentUserId: widget.user.id!,
                           ),
@@ -116,7 +137,8 @@ class _ReportsScreenState extends State<ReportsScreen>
                       )
                     : _ReportsList(
                         reports: _reports
-                            .where((r) => r.submittedByUserId == widget.user.id)
+                            .where((r) =>
+                                r.submittedByUserId == widget.user.id)
                             .toList(),
                         currentUserId: widget.user.id!,
                       ),
@@ -146,8 +168,10 @@ class _ReportsScreenState extends State<ReportsScreen>
 }
 
 // ── Reports list ──────────────────────────────────────────────────────────────
+
 class _ReportsList extends StatelessWidget {
-  const _ReportsList({required this.reports, required this.currentUserId});
+  const _ReportsList(
+      {required this.reports, required this.currentUserId});
   final List<DeliveryReport> reports;
   final int currentUserId;
 
@@ -158,10 +182,12 @@ class _ReportsList extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.assignment_outlined, size: 64, color: PaeColors.inactive),
-            SizedBox(height: 16),
+            Icon(Icons.assignment_outlined,
+                size: 64, color: PaeColors.inactive),
+            const SizedBox(height: 16),
             Text(S.reportNoReports,
-                style: TextStyle(color: PaeColors.textSecondary, fontSize: 15)),
+                style: const TextStyle(
+                    color: PaeColors.textSecondary, fontSize: 15)),
           ],
         ),
       );
@@ -179,15 +205,19 @@ class _ReportsList extends StatelessWidget {
 }
 
 // ── Report Card ───────────────────────────────────────────────────────────────
+
 class _ReportCard extends StatelessWidget {
   const _ReportCard({required this.report});
   final DeliveryReport report;
 
   Color get _condColor {
     switch (report.condition) {
-      case FoodCondition.good: return PaeColors.success;
-      case FoodCondition.fair: return PaeColors.warning;
-      case FoodCondition.poor: return PaeColors.error;
+      case FoodCondition.good:
+        return PaeColors.success;
+      case FoodCondition.fair:
+        return PaeColors.warning;
+      case FoodCondition.poor:
+        return PaeColors.error;
     }
   }
 
@@ -207,7 +237,7 @@ class _ReportCard extends StatelessWidget {
             color: PaeColors.primary.withOpacity(0.04),
             blurRadius: 12,
             offset: const Offset(0, 3),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -235,10 +265,13 @@ class _ReportCard extends StatelessWidget {
                           fontSize: 14,
                           fontFamily: PaeTypography.fontDisplay,
                         )),
-                    Text(S.text('report.submitted_by_name', 'Por {name}', 'By {name}')
-                        .replaceAll('{name}', report.submittedByName),
-                        style: const TextStyle(
-                            color: PaeColors.textSecondary, fontSize: 12)),
+                    Text(
+                      S.text('report.submitted_by_name', 'Por {name}',
+                              'By {name}')
+                          .replaceAll('{name}', report.submittedByName),
+                      style: const TextStyle(
+                          color: PaeColors.textSecondary, fontSize: 12),
+                    ),
                   ],
                 ),
               ),
@@ -279,7 +312,7 @@ class _ReportCard extends StatelessWidget {
               ),
             ),
           ],
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
               const Icon(Icons.schedule_rounded,
@@ -288,14 +321,19 @@ class _ReportCard extends StatelessWidget {
               Text(
                 report.createdAt != null
                     ? fmt.format(report.createdAt!)
-                    : 'Unknown date',
+                    : S.text('report.unknown_date', 'Fecha desconocida',
+                        'Unknown date'),
                 style: const TextStyle(
                     color: PaeColors.textSecondary, fontSize: 11),
               ),
-              Spacer(),
+              const Spacer(),
               StatusBadge(
-                label: report.isSynced ? S.reportSynced : S.reportPendingSync,
-                color: report.isSynced ? PaeColors.success : PaeColors.warning,
+                label: report.isSynced
+                    ? S.reportSynced
+                    : S.reportPendingSync,
+                color: report.isSynced
+                    ? PaeColors.success
+                    : PaeColors.warning,
               ),
             ],
           ),
@@ -306,6 +344,7 @@ class _ReportCard extends StatelessWidget {
 }
 
 // ── New Report Sheet ──────────────────────────────────────────────────────────
+
 class _NewReportSheet extends StatefulWidget {
   const _NewReportSheet({
     required this.user,
@@ -336,19 +375,15 @@ class _NewReportSheetState extends State<_NewReportSheet> {
   }
 
   Future<void> _pickPhoto() async {
-    final xfile = await _picker.pickImage(
-        source: ImageSource.camera, imageQuality: 80);
-    if (xfile != null) {
-      setState(() => _photos.add(File(xfile.path)));
-    }
+    final xfile =
+        await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+    if (xfile != null) setState(() => _photos.add(File(xfile.path)));
   }
 
   Future<void> _pickFromGallery() async {
-    final xfile = await _picker.pickImage(
-        source: ImageSource.gallery, imageQuality: 80);
-    if (xfile != null) {
-      setState(() => _photos.add(File(xfile.path)));
-    }
+    final xfile =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (xfile != null) setState(() => _photos.add(File(xfile.path)));
   }
 
   Future<void> _submit() async {
@@ -377,7 +412,7 @@ class _NewReportSheetState extends State<_NewReportSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Container(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,42 +420,82 @@ class _NewReportSheetState extends State<_NewReportSheet> {
             // Handle
             Center(
               child: Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
                   color: PaeColors.divider,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(S.reportNew,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: PaeTypography.fontDisplay,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                 )),
             const SizedBox(height: 20),
 
-            // Order selector
-            DropdownButtonFormField<DeliveryOrder>(
-              value: _selectedOrder,
-              decoration: InputDecoration(
-                labelText: S.reportSchool,
-                prefixIcon: Icon(Icons.local_shipping_rounded),
+            // ── Order selector ───────────────────────────────────────────────
+            // FIX: Si no hay pedidos, muestra aviso en lugar de dropdown vacío
+            if (widget.orders.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: PaeColors.warning.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: PaeColors.warning.withOpacity(0.4)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded,
+                        color: PaeColors.warning, size: 18),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        S.text(
+                          'report.no_orders_warning',
+                          'No tienes pedidos asignados. Pide a un administrador que te asigne uno.',
+                          'No orders assigned. Ask an admin to assign you one.',
+                        ),
+                        style: const TextStyle(
+                            fontSize: 13, color: PaeColors.warning),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              DropdownButtonFormField<DeliveryOrder>(
+                value: _selectedOrder,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: S.reportSchool,
+                  prefixIcon:
+                      const Icon(Icons.local_shipping_rounded),
+                ),
+                hint: Text(S.text(
+                  'report.select_delivery_order',
+                  'Selecciona un pedido',
+                  'Select delivery order',
+                )),
+                items: widget.orders
+                    .map((o) => DropdownMenuItem(
+                          value: o,
+                          child: Text(
+                            '${o.orderId} — ${o.schoolName}',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (v) => setState(() => _selectedOrder = v),
               ),
-              hint: Text(S.text('report.select_delivery_order', 'Selecciona un pedido', 'Select delivery order')),
-              items: widget.orders.map((o) => DropdownMenuItem(
-                value: o,
-                child: Text('${o.orderId} — ${o.schoolName}',
-                    overflow: TextOverflow.ellipsis),
-              )).toList(),
-              onChanged: (v) => setState(() => _selectedOrder = v),
-            ),
             const SizedBox(height: 16),
 
-            // Condition
+            // ── Condition ────────────────────────────────────────────────────
             Text(S.reportCondition,
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
                   fontFamily: PaeTypography.fontBody,
@@ -451,14 +526,18 @@ class _NewReportSheetState extends State<_NewReportSheet> {
                           width: selected ? 2 : 1,
                         ),
                       ),
-                      child: Text(c.label,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: selected ? color : PaeColors.textSecondary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                            fontFamily: PaeTypography.fontBody,
-                          )),
+                      // FIX: usa S. en lugar de string hardcodeado
+                      child: Text(
+                        c.label,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color:
+                              selected ? color : PaeColors.textSecondary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          fontFamily: PaeTypography.fontBody,
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -466,13 +545,13 @@ class _NewReportSheetState extends State<_NewReportSheet> {
             ),
             const SizedBox(height: 16),
 
-            // Notes
+            // ── Notes ────────────────────────────────────────────────────────
             TextField(
               controller: _notesCtrl,
               maxLines: 3,
               decoration: InputDecoration(
                 labelText: S.reportNotes,
-                prefixIcon: Padding(
+                prefixIcon: const Padding(
                   padding: EdgeInsets.only(bottom: 40),
                   child: Icon(Icons.notes_rounded),
                 ),
@@ -481,11 +560,11 @@ class _NewReportSheetState extends State<_NewReportSheet> {
             ),
             const SizedBox(height: 16),
 
-            // Photos
+            // ── Photos ───────────────────────────────────────────────────────
             Row(
               children: [
                 Text(S.reportPhotos,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
                       color: PaeColors.textSecondary,
@@ -495,14 +574,16 @@ class _NewReportSheetState extends State<_NewReportSheet> {
                 TextButton.icon(
                   onPressed: _pickPhoto,
                   icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                  label: Text(S.text('report.camera', 'Camara', 'Camera')),
+                  label: Text(
+                      S.text('report.camera', 'Cámara', 'Camera')),
                   style: TextButton.styleFrom(
                       foregroundColor: PaeColors.primary),
                 ),
                 TextButton.icon(
                   onPressed: _pickFromGallery,
                   icon: const Icon(Icons.photo_library_outlined, size: 16),
-                  label: Text(S.text('report.gallery', 'Galeria', 'Gallery')),
+                  label: Text(
+                      S.text('report.gallery', 'Galería', 'Gallery')),
                   style: TextButton.styleFrom(
                       foregroundColor: PaeColors.primary),
                 ),
@@ -518,7 +599,8 @@ class _NewReportSheetState extends State<_NewReportSheet> {
                   itemBuilder: (_, i) => Stack(
                     children: [
                       Container(
-                        width: 70, height: 70,
+                        width: 70,
+                        height: 70,
                         margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
@@ -529,7 +611,8 @@ class _NewReportSheetState extends State<_NewReportSheet> {
                         ),
                       ),
                       Positioned(
-                        top: 2, right: 10,
+                        top: 2,
+                        right: 10,
                         child: GestureDetector(
                           onTap: () =>
                               setState(() => _photos.removeAt(i)),
@@ -554,7 +637,10 @@ class _NewReportSheetState extends State<_NewReportSheet> {
             GradientButton(
               label: S.reportSubmit,
               icon: Icons.send_rounded,
-              onPressed: _selectedOrder == null || _submitting ? null : _submit,
+              onPressed: (_selectedOrder == null || _submitting ||
+                      widget.orders.isEmpty)
+                  ? null
+                  : _submit,
               isLoading: _submitting,
             ),
             const SizedBox(height: 8),
