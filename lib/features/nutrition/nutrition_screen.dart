@@ -131,7 +131,7 @@ class _NutritionScreenState extends State<NutritionScreen>
   double get _totalCarbs => _entries.fold(0, (s, e) => s + e.carbs);
   double get _totalFat => _entries.fold(0, (s, e) => s + e.fat);
 
-  String get _geminiApiKey => dotenv.env['GEMINI_API_KEY']?.trim() ?? '';
+  String get _geminiApiKey => dotenv.env['AIzaSyBN5q-ndv00o91fGS0f_2VG_WfV0_1dHVE']?.trim() ?? '';
   String get _geminiModel =>
       (dotenv.env['GEMINI_MODEL']?.trim().isNotEmpty ?? false)
       ? dotenv.env['GEMINI_MODEL']!.trim()
