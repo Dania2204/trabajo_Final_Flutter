@@ -1,11 +1,16 @@
+import '../../core/l10n/app_strings.dart';
+
 enum FoodCondition { good, fair, poor }
 
 extension FoodConditionX on FoodCondition {
   String get label {
     switch (this) {
-      case FoodCondition.good: return 'Good';
-      case FoodCondition.fair: return 'Fair';
-      case FoodCondition.poor: return 'Poor';
+      case FoodCondition.good:
+        return S.reportConditionGood;
+      case FoodCondition.fair:
+        return S.reportConditionFair;
+      case FoodCondition.poor:
+        return S.reportConditionPoor;
     }
   }
 
