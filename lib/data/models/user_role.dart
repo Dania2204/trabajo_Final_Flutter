@@ -22,20 +22,20 @@ extension UserRoleX on UserRole {
   }
 
   bool get canViewAllReports =>
-      this == UserRole.superAdmin || this == UserRole.admin;
+      this == UserRole.superAdmin || this == UserRole.admin || this == UserRole.rector;
 
   bool get canManagePersonnel =>
-      this == UserRole.superAdmin || this == UserRole.admin;
+      this == UserRole.superAdmin || this == UserRole.admin || this == UserRole.rector;
 
   bool get canManageUsers => canManagePersonnel;
 
   bool get canDeleteUsers => canManageUsers;
 
   bool get canCreateOrders =>
-      this == UserRole.superAdmin || this == UserRole.admin || this == UserRole.rector;
+      this == UserRole.superAdmin || this == UserRole.admin;
 
   bool get canAddSchoolLocation =>
-      this == UserRole.superAdmin || this == UserRole.admin || this == UserRole.rector;
+      this == UserRole.superAdmin || this == UserRole.admin;
 
   bool get canDriveRoute => this == UserRole.driver;
 
